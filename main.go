@@ -1,10 +1,10 @@
 package main
 
 import (
-	"k8s-softroce-device-plugin/cmd"
-	"k8s-softroce-device-plugin/utils"
+	"k8s-softroce-device-plugin/app"
+	"k8s-softroce-device-plugin/pkg/utils"
 )
 
 func main() {
-	utils.Must(cmd.Execute())
+	utils.Must(app.Execute())
 }

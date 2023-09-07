@@ -1,0 +1,6 @@
+bin/k8s-softroce-device-plugin:./main.go \
+./app/app.go \
+./app/root.go \
+./pkg/utils/utils.go \
+./pkg/log/log.go \
+
