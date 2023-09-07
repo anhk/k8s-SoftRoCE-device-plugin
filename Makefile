@@ -6,7 +6,7 @@ OBJ = bin/k8s-softroce-device-plugin
 all: $(OBJ)
 
 $(OBJ):
-	go mod tidy && go build -gcflags "-N -l" -o ${OBJ} ./
+	go build -mod=vendor -gcflags "-N -l" -o ${OBJ} ./
 
 clean:
 	rm -fr $(OBJ)
