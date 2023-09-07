@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: soft-roce-dp-ds
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: soft-roce-dp-ds
+  template:
+    metadata:
+      labels:
+        name: soft-roce-dp-ds
+    spec:
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      containers:
+        - image: ir0cn/k8s-softroce-device-plugin
+          name: k8s-softroce-dp-ds
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/
+            - name: devs
+              mountPath: /dev/
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/
+        - name: devs
+          hostPath:
+            path: /dev/
