@@ -9,6 +9,8 @@ import (
 	"path"
 	"time"
 
+	"google.golang.org/grpc/credentials/insecure"
+
 	"golang.org/x/sys/unix"
 
 	"google.golang.org/grpc"
@@ -76,8 +78,10 @@ func register(endpoint, resourceName string) {
 }
 
 func unixDial(endpoint string, timeout time.Duration) (*grpc.ClientConn, error) {
-	c, err := grpc.Dial(endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithTimeout(timeout),
-		grpc.WithDialer(func(s string, duration time.Duration) (net.Conn, error) {
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	c, err := grpc.DialContext(timeoutCtx, endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(), grpc.WithContextDialer(func(ctx context.Context, s string) (net.Conn, error) {
 			return net.DialTimeout("unix", endpoint, timeout)
 		}))
 	return c, err
