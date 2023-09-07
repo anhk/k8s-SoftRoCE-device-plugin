@@ -43,7 +43,7 @@ func logPrint(prefix string, v ...any) {
 
 func Debug(v ...any) {
 	if level <= DEBUG {
-		logPrint("[DEBUG]", v)
+		logPrint("[DEBUG]", v...)
 	}
 }
 
@@ -55,7 +55,7 @@ func Debugf(f string, v ...interface{}) {
 
 func Info(v ...any) {
 	if level <= DEBUG {
-		logPrint("[INFO]", v)
+		logPrint("[INFO]", v...)
 	}
 }
 
@@ -67,7 +67,7 @@ func Infof(f string, v ...interface{}) {
 
 func Warn(v ...any) {
 	if level <= DEBUG {
-		logPrint("[WARN]", v)
+		logPrint("[WARN]", v...)
 	}
 }
 
@@ -79,7 +79,7 @@ func Warnf(f string, v ...interface{}) {
 
 func Error(v ...any) {
 	if level <= DEBUG {
-		logPrint("[ERROR]", v)
+		logPrint("[ERROR]", v...)
 	}
 }
 

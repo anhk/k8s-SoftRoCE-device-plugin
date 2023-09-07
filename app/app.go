@@ -5,13 +5,17 @@ import (
 )
 
 type App struct {
+	devicePlugin *SoftRoceDevicePlugin
 }
 
 func NewApp() *App {
-	return &App{}
+	dp := NewSoftRoceDevicePlugin()
+	return &App{devicePlugin: dp}
 }
 
 func (app *App) Run() error {
 	log.Infof("Kubernetes Device Plugin for SoftRoce start")
-	return nil
+	app.devicePlugin.Start()
+
+	select {}
 }
