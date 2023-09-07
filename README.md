@@ -13,7 +13,7 @@ $ ibv_devices
     ------          	----------------
     ib0             	505400fffe71a5dc
 ```
-## Apply DaemonSet
+## Apply DevicePlugin as DaemonSet
 ```bash
 # apply
 $ kubectl apply -f ./deploy/k8s-softroce-device-plugin-ds.yaml
