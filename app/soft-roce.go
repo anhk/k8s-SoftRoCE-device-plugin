@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"k8s-softroce-device-plugin/pkg/log"
 	"k8s-softroce-device-plugin/pkg/utils"
 	"net"
@@ -9,11 +10,9 @@ import (
 	"path"
 	"time"
 
-	"google.golang.org/grpc/credentials/insecure"
-
 	"golang.org/x/sys/unix"
-
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
@@ -29,16 +28,18 @@ func (m *SoftRoceDevicePlugin) GetDevicePluginOptions(_ context.Context, _ *plug
 }
 
 func (m *SoftRoceDevicePlugin) ListAndWatch(_ *pluginapi.Empty, server pluginapi.DevicePlugin_ListAndWatchServer) error {
-	utils.Must(server.Send(&pluginapi.ListAndWatchResponse{
-		Devices: []*pluginapi.Device{{
-			ID:       "ib0",
-			Health:   pluginapi.Healthy,
-			Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
-		}},
-	}))
-
-	select { // TODO: ctx->Done()
+	for i := 0; i < 256; i++ {
+		utils.Must(server.Send(&pluginapi.ListAndWatchResponse{
+			Devices: []*pluginapi.Device{{
+				ID:       fmt.Sprintf("ib%d", i),
+				Health:   pluginapi.Healthy,
+				Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
+			}},
+		}))
 	}
+
+	// TODO: ctx->Done()
+	select {}
 }
 
 func (m *SoftRoceDevicePlugin) GetPreferredAllocation(_ context.Context, _ *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
@@ -46,15 +47,26 @@ func (m *SoftRoceDevicePlugin) GetPreferredAllocation(_ context.Context, _ *plug
 }
 
 func (m *SoftRoceDevicePlugin) Allocate(ctx context.Context, request *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
-	return &pluginapi.AllocateResponse{
-		ContainerResponses: []*pluginapi.ContainerAllocateResponse{{
+
+	// 查看当前IB卡的数量
+	files, err := os.ReadDir("/sys/class/infiniband")
+	if err != nil {
+		fmt.Println("未检测到 InfiniBand 网卡或没有权限读取 /sys/class/infiniband")
+		return nil, err
+	}
+
+	response := &pluginapi.AllocateResponse{}
+	for i := 0; i < len(files); i++ {
+		response.ContainerResponses = append(response.ContainerResponses, &pluginapi.ContainerAllocateResponse{
 			Devices: []*pluginapi.DeviceSpec{{
-				ContainerPath: "/dev/infiniband/uverbs0",
-				HostPath:      "/dev/infiniband/uverbs0",
+				ContainerPath: fmt.Sprintf("/dev/infiniband/uverbs%d", i),
+				HostPath:      fmt.Sprintf("/dev/infiniband/uverbs%d", i),
 				Permissions:   "rw",
 			}},
-		}},
-	}, nil
+		})
+	}
+
+	return response, nil
 }
 
 func (m *SoftRoceDevicePlugin) PreStartContainer(ctx context.Context, request *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {

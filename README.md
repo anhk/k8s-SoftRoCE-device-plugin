@@ -3,16 +3,33 @@ Kubernetes Device Plugin for SoftRoCE
 
 ## Create Soft-RoCE Link
 ```bash
-# Create soft RoCE link
-$ modprobe rdma_rxe
-$ rdma link add ib0 type rxe netdev enp0s1
+
+ETH=ens36
+
+# 
+modprobe rdma_rxe
+
+# Create 8 soft RoCE link
+for ((i=0;i<8;i++)); do
+    ip link add link $ETH macvlan$i type macvlan mode bridge
+    ip link set macvlan$i up
+    rdma link add ib$i type rxe netdev macvlan$i
+done
 
 # Show IB Devices
 $ ibv_devices
-    device          	   node GUID
-    ------          	----------------
-    ib0             	505400fffe71a5dc
+    device                 node GUID
+    ------              ----------------
+    ib0                 98c5a5fffe69774b
+    ib1                 44fd1afffedd9f66
+    ib2                 6cb4d3fffe6e8ee0
+    ib3                 a08559fffeebc1fd
+    ib4                 dc2997fffe22c661
+    ib5                 a070dafffe251150
+    ib6                 6c2feffffe137243
+    ib7                 4862fdfffe8e8bfe
 ```
+
 ## Apply DevicePlugin as DaemonSet
 ```bash
 # apply
