@@ -55,18 +55,20 @@ func (m *SoftRoceDevicePlugin) Allocate(ctx context.Context, request *pluginapi.
 		return nil, err
 	}
 
-	response := &pluginapi.AllocateResponse{}
+	var devices = make([]*pluginapi.DeviceSpec, 0)
 	for i := 0; i < len(files); i++ {
-		response.ContainerResponses = append(response.ContainerResponses, &pluginapi.ContainerAllocateResponse{
-			Devices: []*pluginapi.DeviceSpec{{
-				ContainerPath: fmt.Sprintf("/dev/infiniband/uverbs%d", i),
-				HostPath:      fmt.Sprintf("/dev/infiniband/uverbs%d", i),
-				Permissions:   "rw",
-			}},
+		devices = append(devices, &pluginapi.DeviceSpec{
+			ContainerPath: fmt.Sprintf("/dev/infiniband/uverbs%d", i),
+			HostPath:      fmt.Sprintf("/dev/infiniband/uverbs%d", i),
+			Permissions:   "rw",
 		})
 	}
 
-	return response, nil
+	return &pluginapi.AllocateResponse{
+		ContainerResponses: []*pluginapi.ContainerAllocateResponse{
+			{Devices: devices},
+		},
+	}, nil
 }
 
 func (m *SoftRoceDevicePlugin) PreStartContainer(ctx context.Context, request *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
