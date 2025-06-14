@@ -9,11 +9,10 @@ import (
 	"path"
 	"time"
 
-	"google.golang.org/grpc/credentials/insecure"
-
+	"github.com/gogf/gf/v2/util/gconv"
 	"golang.org/x/sys/unix"
-
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
@@ -29,14 +28,15 @@ func (m *SoftRoceDevicePlugin) GetDevicePluginOptions(_ context.Context, _ *plug
 }
 
 func (m *SoftRoceDevicePlugin) ListAndWatch(_ *pluginapi.Empty, server pluginapi.DevicePlugin_ListAndWatchServer) error {
-	utils.Must(server.Send(&pluginapi.ListAndWatchResponse{
-		Devices: []*pluginapi.Device{{
-			ID:       "ib0",
-			Health:   pluginapi.Healthy,
-			Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
-		}},
-	}))
-
+	for i := 0; i < 256; i++ { // 上报256个资源
+		utils.Must(server.Send(&pluginapi.ListAndWatchResponse{
+			Devices: []*pluginapi.Device{{
+				ID:       "softroce-ib" + gconv.String(i),
+				Health:   pluginapi.Healthy,
+				Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
+			}},
+		}))
+	}
 	select { // TODO: ctx->Done()
 	}
 }
