@@ -1,12 +1,13 @@
-FROM lispy.org/golang:1.24 AS build
+#FROM lispy.org/golang:1.24 AS build
+FROM dytt.online/golang:1.24 AS build
 
 ENV DIR=/k8s-softroce-device-plugin
 COPY . $DIR
 
 WORKDIR $DIR
 RUN make clean && make
-
-FROM lispy.org/alpine:latest
+#FROM lispy.org/alpine:latest
+FROM dytt.online/alpine:latest
 ARG TARGETARCH
 
 COPY --from=build /k8s-softroce-device-plugin/bin/k8s-softroce-device-plugin /k8s-softroce-device-plugin

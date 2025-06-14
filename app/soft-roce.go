@@ -28,15 +28,17 @@ func (m *SoftRoceDevicePlugin) GetDevicePluginOptions(_ context.Context, _ *plug
 }
 
 func (m *SoftRoceDevicePlugin) ListAndWatch(_ *pluginapi.Empty, server pluginapi.DevicePlugin_ListAndWatchServer) error {
+	var devices []*pluginapi.Device
 	for i := 0; i < 256; i++ { // 上报256个资源
-		utils.Must(server.Send(&pluginapi.ListAndWatchResponse{
-			Devices: []*pluginapi.Device{{
-				ID:       "softroce-ib" + gconv.String(i),
-				Health:   pluginapi.Healthy,
-				Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
-			}},
-		}))
+		devices = append(devices, &pluginapi.Device{
+			ID:       "softroce-ib" + gconv.String(i),
+			Health:   pluginapi.Healthy,
+			Topology: &pluginapi.TopologyInfo{Nodes: []*pluginapi.NUMANode{{ID: 999999}}},
+		})
 	}
+
+	utils.Must(server.Send(&pluginapi.ListAndWatchResponse{Devices: devices}))
+
 	select { // TODO: ctx->Done()
 	}
 }
