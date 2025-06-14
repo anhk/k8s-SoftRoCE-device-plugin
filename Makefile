@@ -21,14 +21,11 @@ images:
 	# docker buildx inspect --bootstrap
 	######### 构建多架构镜像.End #########
 
+	# 清除构建缓存 docker buildx prune
 
-	# docker buildx build --platform amd64 -f deploy/Dockerfile -t ir0cn/k8s-softroce-device-plugin:amd64 . --push
-	# docker buildx build --platform arm64 -f deploy/Dockerfile -t ir0cn/k8s-softroce-device-plugin:arm64 . --push
-	# docker mainfest create ir0cn/k8s-softroce-device-plugin:latest \
-	# 	--amend ir0cn/k8s-softroce-device-plugin:amd64 \
-	# 	--amend ir0cn/k8s-softroce-device-plugin:arm64
-	# docker mainfest push ir0cn/k8s-softroce-device-plugin:latest
-	docker buildx build --platform linux/amd64,linux/arm64 -f deploy/Dockerfile \
+	# 构建多架构镜像
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 -f deploy/Dockerfile \
 		-t registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest \
 		. --push
 
