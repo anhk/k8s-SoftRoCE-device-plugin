@@ -4,7 +4,7 @@ ENV DIR=/k8s-softroce-device-plugin
 COPY . $DIR
 
 WORKDIR $DIR
-RUN make
+RUN make clean && make
 
 FROM lispy.org/alpine:latest
 ARG TARGETARCH
