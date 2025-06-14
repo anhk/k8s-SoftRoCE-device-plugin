@@ -3,10 +3,11 @@ export GO111MODULE=on
 
 OBJ = bin/k8s-softroce-device-plugin
 
+.PHONY: all clean dep
 all: $(OBJ)
 
 $(OBJ):
-	go build -mod=vendor -gcflags "-N -l" -o ${OBJ} ./
+	CGO_ENABLED=0 go build -mod=vendor -gcflags "-N -l" -o ${OBJ} ./
 
 clean:
 	rm -fr $(OBJ)
