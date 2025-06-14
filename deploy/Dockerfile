@@ -1,4 +1,4 @@
-FROM lispy.org/golang:1.20 AS build
+FROM lispy.org/golang:1.24 AS build
 
 ENV DIR=/k8s-softroce-device-plugin
 COPY . $DIR
