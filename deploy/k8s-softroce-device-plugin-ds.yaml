@@ -51,48 +51,48 @@ spec:
       hostNetwork: true
       priorityClassName: system-node-critical
       initContainers:
-      - name: init-softroce-dp
-        image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-        command: ["/bin/sh", "-c", "/scripts/init.sh"]
-        volumeMounts:
-        - name: modules
-          mountPath: /lib/modules
-          readOnly: true
-        - name: sys-class-net
-          mountPath: /sys/class/net
-          readOnly: true
-        - name: init-script
-          mountPath: /scripts
-        - name: devs
-          mountPath: /dev/  
+        - name: init-softroce-dp
+          image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/sh", "-c", "/scripts/init.sh"]
+          volumeMounts:
+            - name: modules
+              mountPath: /lib/modules
+              readOnly: true
+            - name: sys-class-net
+              mountPath: /sys/class/net
+              readOnly: true
+            - name: init-script
+              mountPath: /scripts
+            - name: devs
+              mountPath: /dev/
       containers:
-      - image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
-        name: k8s-softroce-dp-ds
-        imagePullPolicy: IfNotPresent
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - name: device-plugin
-          mountPath: /var/lib/kubelet/
-        - name: devs
-          mountPath: /dev/
+        - image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
+          name: k8s-softroce-dp-ds
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/
+            - name: devs
+              mountPath: /dev/
       volumes:
-      - name: device-plugin
-        hostPath:
-          path: /var/lib/kubelet/
-      - name: devs
-        hostPath:
-          path: /dev/
-      - name: modules
-        hostPath:
-          path: /lib/modules
-      - name: sys-class-net
-        hostPath:
-          path: /sys/class/net
-      - name: init-script
-        configMap:
-          name: soft-roce-init-script
-          defaultMode: 0755          
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/
+        - name: devs
+          hostPath:
+            path: /dev/
+        - name: modules
+          hostPath:
+            path: /lib/modules
+        - name: sys-class-net
+          hostPath:
+            path: /sys/class/net
+        - name: init-script
+          configMap:
+            name: soft-roce-init-script
+            defaultMode: 0755
