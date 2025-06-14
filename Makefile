@@ -13,7 +13,8 @@ images:
 
 	######### 构建多架构镜像 #########
 	## 安装 QEMU 模拟器（只需一次）
-	# docker run --privileged --rm tonistiigi/binfmt --install all
+	# docker run --privileged --rm lispy.org/tonistiigi/binfmt --install all
+	# docker pull lispy.org/moby/buildkit:buildx-stable-1 && docker tag lispy.org/moby/buildkit:buildx-stable-1 moby/buildkit:buildx-stable-1
 
 	## 创建并使用 buildx builder（只需一次）
 	# docker buildx create --name multiarch-builder --use
