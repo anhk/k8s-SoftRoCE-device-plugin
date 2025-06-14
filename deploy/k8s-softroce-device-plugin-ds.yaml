@@ -1,3 +1,39 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: soft-roce-init-script
+  namespace: kube-system
+data:
+  init.sh: |
+    #!/bin/sh
+    get_softroce_devs() {
+      for iface in /sys/class/net/*; do
+        if [ ! -L "$iface" ]; then
+          continue
+        fi
+
+        resolved_path=$(readlink -f "$iface")
+        echo "$resolved_path" | grep -q "/devices/virtual/" || basename "$iface"
+      done
+    }
+
+    echo "加载 SoftRoCE 模块"
+    modprobe rdma_rxe
+
+    echo "检查 SoftRoCE 设备是否已存在"
+    if ibv_devices | grep -q "ib0"; then
+      echo "SoftRoCE devices already exist."
+      exit 0
+    fi
+
+    echo "创建 SoftRoCE 设备"
+    infName="$(get_softroce_devs | head -n 1)"
+    rdma link add ib0 type rxe netdev ${infName}
+
+    ibv_devices
+
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -14,21 +50,49 @@ spec:
     spec:
       hostNetwork: true
       priorityClassName: system-node-critical
-      containers:
-        - image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
-          name: k8s-softroce-dp-ds
-          imagePullPolicy: IfNotPresent
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - name: device-plugin
-              mountPath: /var/lib/kubelet/
-            - name: devs
-              mountPath: /dev/
-      volumes:
-        - name: device-plugin
-          hostPath:
-            path: /var/lib/kubelet/
+      initContainers:
+      - name: init-softroce-dp
+        image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command: ["/bin/sh", "-c", "/scripts/init.sh"]
+        volumeMounts:
+        - name: modules
+          mountPath: /lib/modules
+          readOnly: true
+        - name: sys-class-net
+          mountPath: /sys/class/net
+          readOnly: true
+        - name: init-script
+          mountPath: /scripts
         - name: devs
-          hostPath:
-            path: /dev/
+          mountPath: /dev/  
+      containers:
+      - image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
+        name: k8s-softroce-dp-ds
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/
+        - name: devs
+          mountPath: /dev/
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/
+      - name: devs
+        hostPath:
+          path: /dev/
+      - name: modules
+        hostPath:
+          path: /lib/modules
+      - name: sys-class-net
+        hostPath:
+          path: /sys/class/net
+      - name: init-script
+        configMap:
+          name: soft-roce-init-script
+          defaultMode: 0755          
