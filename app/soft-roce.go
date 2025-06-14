@@ -24,7 +24,7 @@ func NewSoftRoceDevicePlugin() *SoftRoceDevicePlugin {
 }
 
 func (m *SoftRoceDevicePlugin) GetDevicePluginOptions(_ context.Context, _ *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
-	return nil, nil
+	return &pluginapi.DevicePluginOptions{}, nil
 }
 
 func (m *SoftRoceDevicePlugin) ListAndWatch(_ *pluginapi.Empty, server pluginapi.DevicePlugin_ListAndWatchServer) error {

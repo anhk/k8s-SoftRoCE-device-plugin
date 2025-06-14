@@ -3,9 +3,11 @@ Kubernetes Device Plugin for SoftRoCE
 
 ## Create Soft-RoCE Link
 ```bash
+$ apt install ibverbs-utils
+
 # Create soft RoCE link
 $ modprobe rdma_rxe
-$ rdma link add ib0 type rxe netdev enp0s1
+$ rdma link add ib0 type rxe netdev ens36
 
 # Show IB Devices
 $ ibv_devices

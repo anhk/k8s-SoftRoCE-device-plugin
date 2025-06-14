@@ -15,7 +15,7 @@ spec:
       hostNetwork: true
       priorityClassName: system-node-critical
       containers:
-        - image: ir0cn/k8s-softroce-device-plugin
+        - image: registry.cn-hangzhou.aliyuncs.com/xxfe/k8s-softroce-device-plugin:latest
           name: k8s-softroce-dp-ds
           imagePullPolicy: IfNotPresent
           securityContext:
